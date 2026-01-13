@@ -68,7 +68,9 @@ export default function TaskForm({ open, onClose, onSubmit, existingTitles, init
     !!status;
 
   const handleSubmit = () => {
-    const safeTime = typeof timeTaken === 'number' && timeTaken > 0 ? timeTaken : 1; // auto-correct
+    const safeTime = typeof timeTaken === 'number' && timeTaken > 0 ? timeTaken : 1;
+    
+    // FIXED: Added createdAt to the payload to satisfy the TypeScript Task interface
     const payload: Omit<Task, 'id'> & { id?: string } = {
       title: title.trim(),
       revenue: typeof revenue === 'number' ? revenue : 0,
@@ -76,8 +78,10 @@ export default function TaskForm({ open, onClose, onSubmit, existingTitles, init
       priority: ((priority || 'Medium') as Priority),
       status: ((status || 'Todo') as Status),
       notes: notes.trim() || undefined,
-      ...(initial ? { id: initial.id } : {}),
+      createdAt: initial?.createdAt || new Date().toISOString(), // Use existing or create new
+      ...(initial ? { id: initial.id, completedAt: initial.completedAt } : {}),
     };
+    
     onSubmit(payload);
     onClose();
   };
@@ -146,5 +150,3 @@ export default function TaskForm({ open, onClose, onSubmit, existingTitles, init
     </Dialog>
   );
 }
-
-
